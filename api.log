@@ -1,0 +1,41 @@
+{"event": "request_started", "timestamp": "2026-01-04T02:26:45.223595Z", "path": "/health", "correlation_id": "CID-TEST-123", "method": "GET", "level": "info"}
+{"event": "health_check", "timestamp": "2026-01-04T02:26:45.231385Z", "path": "/health", "correlation_id": "CID-TEST-123", "method": "GET", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T02:26:45.233288Z", "path": "/health", "correlation_id": "CID-TEST-123", "method": "GET", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T02:52:41.586128Z", "method": "GET", "path": "/health", "correlation_id": "7dcaf901-59a7-4736-a0bb-d21ecb57bd03", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T02:58:50.200521Z", "path": "/health", "correlation_id": "04064124-9932-43a7-90d3-c6553e4cb5e8", "method": "GET", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:01:53.345777Z", "path": "/health", "correlation_id": "18d10d56-7160-4935-b0d3-e7249ebbfb59", "method": "GET", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:04:24.761105Z", "path": "/health", "correlation_id": "2dc49d80-b511-4143-9a4a-28916af5828a", "method": "GET", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:05:32.180666Z", "correlation_id": "b699a6bd-9c06-4720-bdeb-f4a8424cbf52", "path": "/health", "method": "GET", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:08:15.759936Z", "correlation_id": "8039873e-2674-43e0-a226-790e2efae711", "path": "/health", "method": "GET", "level": "info"}
+{"where": "REQUEST_STARTED", "error": "module 'observability.audit_logger' has no attribute 'emit'", "event": "audit_emit_failed", "timestamp": "2026-01-04T03:08:15.759936Z", "correlation_id": "8039873e-2674-43e0-a226-790e2efae711", "path": "/health", "method": "GET", "level": "warning"}
+{"event": "health_check", "timestamp": "2026-01-04T03:08:15.759936Z", "correlation_id": "8039873e-2674-43e0-a226-790e2efae711", "path": "/health", "method": "GET", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:08:15.759936Z", "correlation_id": "8039873e-2674-43e0-a226-790e2efae711", "path": "/health", "method": "GET", "level": "info"}
+{"where": "REQUEST_COMPLETED", "error": "module 'observability.audit_logger' has no attribute 'emit'", "event": "audit_emit_failed", "timestamp": "2026-01-04T03:08:15.759936Z", "correlation_id": "8039873e-2674-43e0-a226-790e2efae711", "path": "/health", "method": "GET", "level": "warning"}
+{"event": "request_started", "timestamp": "2026-01-04T03:09:14.942059Z", "correlation_id": "f2eaf160-7e83-4bff-83cf-6b6d7d7d8d55", "path": "/health", "method": "GET", "level": "info"}
+{"where": "REQUEST_STARTED", "error": "module 'observability.audit_logger' has no attribute 'emit'", "event": "audit_emit_failed", "timestamp": "2026-01-04T03:09:14.942059Z", "correlation_id": "f2eaf160-7e83-4bff-83cf-6b6d7d7d8d55", "path": "/health", "method": "GET", "level": "warning"}
+{"event": "health_check", "timestamp": "2026-01-04T03:09:14.954638Z", "correlation_id": "f2eaf160-7e83-4bff-83cf-6b6d7d7d8d55", "path": "/health", "method": "GET", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:09:14.955647Z", "correlation_id": "f2eaf160-7e83-4bff-83cf-6b6d7d7d8d55", "path": "/health", "method": "GET", "level": "info"}
+{"where": "REQUEST_COMPLETED", "error": "module 'observability.audit_logger' has no attribute 'emit'", "event": "audit_emit_failed", "timestamp": "2026-01-04T03:09:14.956599Z", "correlation_id": "f2eaf160-7e83-4bff-83cf-6b6d7d7d8d55", "path": "/health", "method": "GET", "level": "warning"}
+{"event": "request_started", "timestamp": "2026-01-04T03:17:22.859099Z", "path": "/health", "method": "GET", "correlation_id": "093e26bd-da81-4463-90e0-62c37e3bda83", "level": "info"}
+{"event": "health_check", "timestamp": "2026-01-04T03:17:22.864445Z", "path": "/health", "method": "GET", "correlation_id": "093e26bd-da81-4463-90e0-62c37e3bda83", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:17:22.865524Z", "path": "/health", "method": "GET", "correlation_id": "093e26bd-da81-4463-90e0-62c37e3bda83", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:19:47.062219Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"pincode": "560001", "item_count": 2, "event": "compare_requested", "timestamp": "2026-01-04T03:19:47.062219Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"grand_total": 162.5, "platforms": ["JIOMART", "BIGBASKET"], "event": "compare_completed", "timestamp": "2026-01-04T03:19:47.072701Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:19:47.075709Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:28:23.281504Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"pincode": "560001", "item_count": 2, "event": "compare_requested", "timestamp": "2026-01-04T03:28:23.287002Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"grand_total": 162.5, "platforms": ["JIOMART", "BIGBASKET"], "event": "compare_completed", "timestamp": "2026-01-04T03:28:23.289695Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:28:23.293872Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-001", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:31:49.114495Z", "path": "/auth/jiomart/start", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"platform": "JIOMART", "event": "auth_start", "timestamp": "2026-01-04T03:31:49.122538Z", "path": "/auth/jiomart/start", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"platform": "JIOMART", "event": "auth_otp_required", "timestamp": "2026-01-04T03:31:49.128441Z", "path": "/auth/jiomart/start", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:31:49.133807Z", "path": "/auth/jiomart/start", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:32:11.343018Z", "path": "/auth/jiomart/submit", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"platform": "JIOMART", "auth_session_id": "JIOMART-1767497509", "event": "otp_submit_received", "timestamp": "2026-01-04T03:32:11.349084Z", "path": "/auth/jiomart/submit", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"platform": "JIOMART", "event": "otp_submit_success", "timestamp": "2026-01-04T03:32:11.353211Z", "path": "/auth/jiomart/submit", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:32:11.357135Z", "path": "/auth/jiomart/submit", "method": "POST", "correlation_id": "CID-AUTH-001", "level": "info"}
+{"event": "request_started", "timestamp": "2026-01-04T03:32:42.671549Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-002", "level": "info"}
+{"pincode": "560001", "item_count": 2, "event": "compare_requested", "timestamp": "2026-01-04T03:32:42.675682Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-002", "level": "info"}
+{"grand_total": 162.5, "platforms": ["JIOMART", "BIGBASKET"], "event": "compare_completed", "timestamp": "2026-01-04T03:32:42.679815Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-002", "level": "info"}
+{"status_code": 200, "event": "request_completed", "timestamp": "2026-01-04T03:32:42.685433Z", "path": "/compare", "method": "POST", "correlation_id": "CID-COMPARE-002", "level": "info"}

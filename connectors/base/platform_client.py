@@ -2,5 +2,5 @@ from abc import ABC, abstractmethod
 
 class PlatformClient(ABC):
     @abstractmethod
-    def search(self, query: str):
+    def search(self, q: str):
         raise NotImplementedError
