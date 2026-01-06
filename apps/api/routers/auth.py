@@ -1,80 +1,101 @@
-import time
-from typing import Any, Dict, Optional
+from __future__ import annotations
 
-import structlog
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from typing import Optional
 
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field
+
+from connectors.base.types import AuthStatus, UserContext
+from connectors.base.session_store_factory import get_session_store
+from core.config.settings import load_settings
+from core.security.user_key import get_user_key
 from observability import audit_logger
 
-router = APIRouter(prefix="/auth", tags=["auth"])
-log = structlog.get_logger("auth")
+from connectors.jiomart import JiomartClient
 
-# In-memory mock store (Module 1 only)
-_AUTH_STATE: Dict[str, Dict[str, Any]] = {}
+router = APIRouter(tags=["auth"])
 
 
 class AuthStartResponse(BaseModel):
     platform: str
-    status: str  # AUTHENTICATED | OTP_REQUIRED
+    status: AuthStatus
     auth_session_id: Optional[str] = None
+    message: Optional[str] = None
 
 
-class OtpSubmitRequest(BaseModel):
-    auth_session_id: str
-    otp: str
+class AuthOtpSubmitRequest(BaseModel):
+    auth_session_id: str = Field(..., description="Returned by /start")
+    otp: str = Field(..., min_length=1, max_length=12)
 
 
-@router.post("/{platform}/start", response_model=AuthStartResponse)
-async def auth_start(platform: str) -> AuthStartResponse:
-    platform_u = platform.upper()
-    log.info("auth_start", platform=platform_u)
-    audit_logger.emit("AUTH_START_REQUESTED", platform=platform_u)
-
-    if platform_u == "JIOMART":
-        auth_session_id = f"{platform_u}-{int(time.time())}"
-        _AUTH_STATE[platform_u] = {"status": "OTP_REQUIRED", "auth_session_id": auth_session_id}
-        log.info("auth_otp_required", platform=platform_u)
-        audit_logger.emit("AUTH_OTP_REQUIRED", platform=platform_u, payload={"auth_session_id": auth_session_id})
-        return AuthStartResponse(platform=platform_u, status="OTP_REQUIRED", auth_session_id=auth_session_id)
-
-    _AUTH_STATE[platform_u] = {"status": "AUTHENTICATED"}
-    log.info("auth_authenticated", platform=platform_u)
-    audit_logger.emit("AUTH_SUCCESS", platform=platform_u)
-    return AuthStartResponse(platform=platform_u, status="AUTHENTICATED")
+class AuthSubmitResponse(BaseModel):
+    platform: str
+    status: AuthStatus
+    message: Optional[str] = None
 
 
-@router.post("/{platform}/submit")
-async def auth_submit(platform: str, payload: OtpSubmitRequest) -> Dict[str, Any]:
-    platform_u = platform.upper()
-    # DO NOT log OTP
-    log.info("otp_submit_received", platform=platform_u, auth_session_id=payload.auth_session_id)
-    audit_logger.emit("AUTH_OTP_SUBMIT_RECEIVED", platform=platform_u, payload={"auth_session_id": payload.auth_session_id})
-
-    st = _AUTH_STATE.get(platform_u)
-    if not st or st.get("status") != "OTP_REQUIRED":
-        audit_logger.emit("AUTH_FAILURE", platform=platform_u, payload={"reason": "no_challenge"})
-        raise HTTPException(status_code=400, detail="No OTP challenge in progress.")
-
-    if st.get("auth_session_id") != payload.auth_session_id:
-        audit_logger.emit("AUTH_FAILURE", platform=platform_u, payload={"reason": "invalid_auth_session_id"})
-        raise HTTPException(status_code=400, detail="Invalid auth_session_id.")
-
-    if len(payload.otp.strip()) < 4:
-        log.info("otp_submit_failed", platform=platform_u, reason="otp_too_short")
-        audit_logger.emit("AUTH_FAILURE", platform=platform_u, payload={"reason": "otp_too_short"})
-        raise HTTPException(status_code=400, detail="Invalid OTP.")
-
-    _AUTH_STATE[platform_u] = {"status": "AUTHENTICATED"}
-    log.info("otp_submit_success", platform=platform_u)
-    audit_logger.emit("AUTH_SUCCESS", platform=platform_u)
-    return {"platform": platform_u, "status": "AUTHENTICATED"}
+class AuthStatusResponse(BaseModel):
+    platform: str
+    status: AuthStatus
 
 
-@router.get("/{platform}/status")
-async def auth_status(platform: str) -> Dict[str, Any]:
-    platform_u = platform.upper()
-    status = _AUTH_STATE.get(platform_u, {"status": "NOT_AUTHENTICATED"})["status"]
-    log.info("auth_status", platform=platform_u, status=status)
-    audit_logger.emit("AUTH_STATUS_CHECKED", platform=platform_u, payload={"status": status})
-    return {"platform": platform_u, "status": status}
+def _ctx(request: Request) -> UserContext:
+    # pincode is currently in compare payload; for auth we take default/dev value from config or header
+    settings = load_settings("dev")
+    pincode = request.headers.get("X-Pincode") or "560001"
+    return UserContext(user_key=get_user_key(request), pincode=pincode)
+
+
+@router.post("/auth/jiomart/start", response_model=AuthStartResponse)
+def jiomart_start(request: Request) -> AuthStartResponse:
+    client = JiomartClient(env="dev")
+    ctx = _ctx(request)
+
+    # If already authenticated, return immediately
+    existing = client.ensure_authenticated(ctx)
+    if existing.status == AuthStatus.AUTHENTICATED:
+        return AuthStartResponse(platform=client.platform, status=AuthStatus.AUTHENTICATED)
+
+    try:
+        state = client.start_login(ctx)
+        return AuthStartResponse(
+            platform=client.platform,
+            status=state.status,
+            auth_session_id=state.auth_session_id,
+            message=state.message,
+        )
+    except Exception as e:
+        audit_logger.emit("AUTH_START_FAILED", platform=client.platform, payload={"error": str(e)})
+        raise HTTPException(status_code=502, detail=f"Worker auth start failed: {e}")
+
+
+@router.post("/auth/jiomart/submit", response_model=AuthSubmitResponse)
+def jiomart_submit(request: Request, body: AuthOtpSubmitRequest) -> AuthSubmitResponse:
+    client = JiomartClient(env="dev")
+    ctx = _ctx(request)
+
+    try:
+        state = client.submit_otp(ctx, body.auth_session_id, body.otp)
+        return AuthSubmitResponse(platform=client.platform, status=state.status, message=state.message)
+    except Exception as e:
+        audit_logger.emit("AUTH_SUBMIT_FAILED", platform=client.platform, payload={"error": str(e)})
+        raise HTTPException(status_code=502, detail=f"Worker auth submit failed: {e}")
+
+
+@router.get("/auth/jiomart/status", response_model=AuthStatusResponse)
+def jiomart_status(request: Request) -> AuthStatusResponse:
+    store = get_session_store(env="dev")
+    user_key = get_user_key(request)
+    blob = store.load("JIOMART", user_key)
+    if blob:
+        return AuthStatusResponse(platform="JIOMART", status=AuthStatus.AUTHENTICATED)
+    return AuthStatusResponse(platform="JIOMART", status=AuthStatus.NOT_AUTHENTICATED)
+
+
+@router.post("/auth/jiomart/logout", response_model=AuthStatusResponse)
+def jiomart_logout(request: Request) -> AuthStatusResponse:
+    store = get_session_store(env="dev")
+    user_key = get_user_key(request)
+    store.delete("JIOMART", user_key)
+    audit_logger.emit("SESSION_DELETED", platform="JIOMART", payload={"user_key": user_key})
+    return AuthStatusResponse(platform="JIOMART", status=AuthStatus.NOT_AUTHENTICATED)
