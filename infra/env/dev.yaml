@@ -1,2 +1,14 @@
 # dev.yaml
 env: dev
+app:
+  env: DEV
+  log_level: INFO
+
+sessions:
+  store: file_encrypted
+  base_dir: ./sessions
+  ttl_seconds: 3600   # 1 hour default
+
+security:
+  session_enc_key: "DHlb1N-6JUidUh916D-6TCEVBQY0kzcTRQ39c7HJKlQ="
+
